@@ -1,0 +1,13 @@
+Exception in thread "main" java.io.IOException: javax.crypto.BadPaddingException: Given final block not properly padded. Such issues can arise if a bad key is used during decryption.
+        at java.base/javax.crypto.CipherInputStream.getMoreData(CipherInputStream.java:148)
+        at java.base/javax.crypto.CipherInputStream.read(CipherInputStream.java:262)
+        at java.base/javax.crypto.CipherInputStream.read(CipherInputStream.java:238)
+        at decrypt.main(decrypt.java:30)
+Caused by: javax.crypto.BadPaddingException: Given final block not properly padded. Such issues can arise if a bad key is used during decryption.
+        at java.base/com.sun.crypto.provider.CipherCore.unpad(CipherCore.java:861)
+        at java.base/com.sun.crypto.provider.CipherCore.fillOutputBuffer(CipherCore.java:941)
+        at java.base/com.sun.crypto.provider.CipherCore.doFinal(CipherCore.java:825)
+        at java.base/com.sun.crypto.provider.AESCipher.engineDoFinal(AESCipher.java:490)
+        at java.base/javax.crypto.Cipher.doFinal(Cipher.java:2190)
+        at java.base/javax.crypto.CipherInputStream.getMoreData(CipherInputStream.java:145)
+        ... 3 more

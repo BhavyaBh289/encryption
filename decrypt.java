@@ -5,15 +5,25 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Objects;
 
 public class decrypt {
-    public static void main(String[] args) throws Exception {
-        // Replace these with your own values
-        String encryptedFilePath = "/home/bh289/Documents/clg/sem_5/cyber sec/cp/encFile.txt";
-        String decryptedFilePath = "/home/bh289/Documents/clg/sem_5/cyber sec/cp/decFile.txt";
-        String secretKey = "YourSecretKeyYourSecretKeyYourSe";
+    public static void decryptfolder(File inputFolderPath ,File outputFolderPath ,String secretKey  )throws Exception {
+        if (!outputFolderPath.exists()) {
+            outputFolderPath.mkdirs();
+        }
+        for (File sourceFile : Objects.requireNonNull(inputFolderPath.listFiles())) {
+            if (sourceFile.isDirectory()) {
+                File subfolderDestination = new File(outputFolderPath, sourceFile.getName());
+                decryptfolder(sourceFile, subfolderDestination, secretKey);
+            } else {
+                decryptfile(sourceFile, new File(outputFolderPath, sourceFile.getName()), secretKey);
+            }
+        }
+    }
+    public static void decryptfile(File inputFilePath ,File outputFilePath ,String secretKey  )throws Exception {
 
-        byte[] iv = new byte[16]; // Initialization Vector
+        byte[] iv = new byte[16];
 
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
@@ -21,9 +31,9 @@ public class decrypt {
 
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
 
-        try (FileInputStream encryptedInputStream = new FileInputStream(encryptedFilePath);
+        try (FileInputStream encryptedInputStream = new FileInputStream(inputFilePath);
              CipherInputStream cipherInputStream = new CipherInputStream(encryptedInputStream, cipher);
-             FileOutputStream decryptedOutputStream = new FileOutputStream(decryptedFilePath)) {
+             FileOutputStream decryptedOutputStream = new FileOutputStream(outputFilePath)) {
 
             int read;
             byte[] buffer = new byte[1024];

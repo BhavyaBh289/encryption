@@ -5,15 +5,24 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Objects;
 
 public class encrypt {
-    public static void main(String[] args) throws Exception {
-        // Replace these with your own values
-        String inputFilePath = "/home/bh289/Documents/clg/sem_5/cyber sec/cp/Text File.txt";
-        String outputFilePath = "/home/bh289/Documents/clg/sem_5/cyber sec/cp/encFile.txt";
-        String secretKey = "YourSecretKeyYourSecretKeyYourSe";
 
-        // Use a fixed IV (16 bytes of zeros for demonstration)
+    public static void encryptfolder(File inputFolderPath ,File outputFolderPath ,String secretKey  )throws Exception {
+        if (!outputFolderPath.exists()) {
+            outputFolderPath.mkdirs();
+        }
+        for (File sourceFile : Objects.requireNonNull(inputFolderPath.listFiles())) {
+            if (sourceFile.isDirectory()) {
+                File subfolderDestination = new File(outputFolderPath, sourceFile.getName());
+                encryptfolder(sourceFile, subfolderDestination, secretKey);
+            } else {
+                encryptfile(sourceFile, new File(outputFolderPath, sourceFile.getName()), secretKey);
+            }
+        }
+    }
+    public static void encryptfile(File inputFilePath ,File outputFilePath ,String secretKey  )throws Exception {
         byte[] fixedIV = new byte[16];
         IvParameterSpec ivParameterSpec = new IvParameterSpec(fixedIV);
 
