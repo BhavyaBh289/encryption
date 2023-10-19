@@ -1,6 +1,4 @@
 import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,25 +19,23 @@ public class decrypt {
             }
         }
     }
-    public static void decryptfile(File inputFilePath ,File outputFilePath ,String secretKey  )throws Exception {
-
-        byte[] iv = new byte[16];
-
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    public static void decryptfile(File inputFilePath, File outputFilePath, String secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
         SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-
-        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
 
         try (FileInputStream encryptedInputStream = new FileInputStream(inputFilePath);
-             CipherInputStream cipherInputStream = new CipherInputStream(encryptedInputStream, cipher);
              FileOutputStream decryptedOutputStream = new FileOutputStream(outputFilePath)) {
 
-            int read;
             byte[] buffer = new byte[1024];
-            while ((read = cipherInputStream.read(buffer)) != -1) {
-                decryptedOutputStream.write(buffer, 0, read);
+            int bytesRead;
+            while ((bytesRead = encryptedInputStream.read(buffer)) != -1) {
+                byte[] decryptedBytes = cipher.update(buffer, 0, bytesRead);
+                decryptedOutputStream.write(decryptedBytes);
             }
+
+            byte[] finalDecryptedBytes = cipher.doFinal();
+            decryptedOutputStream.write(finalDecryptedBytes);
         }
     }
 }

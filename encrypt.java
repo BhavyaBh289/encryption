@@ -1,10 +1,6 @@
 import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.Objects;
 
 public class encrypt {
@@ -22,24 +18,23 @@ public class encrypt {
             }
         }
     }
-    public static void encryptfile(File inputFilePath ,File outputFilePath ,String secretKey  )throws Exception {
-        byte[] fixedIV = new byte[16];
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(fixedIV);
-
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    public static void encryptfile(File inputFilePath, File outputFilePath, String secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
         SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
 
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+        try (InputStream inputStream = new FileInputStream(inputFilePath);
+             OutputStream outputStream = new FileOutputStream(outputFilePath)) {
 
-        try (FileInputStream inputStream = new FileInputStream(inputFilePath);
-             FileOutputStream outputStream = new FileOutputStream(outputFilePath);
-             CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher)) {
-
-            int read;
             byte[] buffer = new byte[1024];
-            while ((read = inputStream.read(buffer)) != -1) {
-                cipherOutputStream.write(buffer, 0, read);
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byte[] encryptedBytes = cipher.update(buffer, 0, bytesRead);
+                outputStream.write(encryptedBytes);
             }
+
+            byte[] finalEncryptedBytes = cipher.doFinal();
+            outputStream.write(finalEncryptedBytes);
         }
     }
 }
